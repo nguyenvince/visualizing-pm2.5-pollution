@@ -1,0 +1,436 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Visualizing PM2.5</title>
+    <meta name="description" content="visualizing PM2.5 air pollution">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+    <link rel="alternate icon" href="assets/favicon.png">
+
+    <!-- css -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto+Slab&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- import the webpage's javascript file -->
+    <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof jQuery == 'undefined') {
+            document.write(unescape("%3Cscript src='/scripts/jquery-3.4.1.min.js' type='text/javascript'%3E%3C/script%3E"));
+        }
+    </script>
+
+    <!-- p5 -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/p5.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/p5.js/0.9.0/addons/p5.dom.min.js"></script>
+
+    <!-- Boostrap -->
+    <script defer src="/scripts/popper.min.js"></script>
+    <script defer src="/scripts/bootstrap.min.js"></script>
+
+    <!-- enterview -->
+    <script defer src="https://unpkg.com/enter-view"></script>
+
+    <!-- d3 -->
+    <script src="//d3js.org/d3.v4.min.js"></script>
+
+    <script src="scripts.js"></script>
+    <script src="sketch.js"></script>
+    <script src="chart.js"></script>
+
+</head>
+
+
+<body>
+    <div id="splash">
+        <div class="container d-flex flex-column justify-content-center">
+            <div class="row justify-content-center">
+                <div class="col-lg-12">
+                    <h2 class="text-center">Visualizing PM2.5 Air Pollution</h2>
+                </div>
+            </div>
+
+            <div class="row justify-content-around">
+                <div class="col-xs-5">
+                    <h4 class="text-right">Find your location: </h4>
+                </div>
+            </div>
+
+            <div class="row justify-content-center">
+                <div class="col-lg-12 text-center">
+                    <button id="auto-locate" class="btn btn-dark" type="button" onclick="geolocate()">Auto-locate</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="page-wrapper">
+        <section id="main">
+            <div class="container">
+                <h3>You have inhaled</h3>
+                <h2 class="big" id="particle-count"></h2>
+                <h3>fine dust particles PM2.5 since you opened this website</h3>
+                <h3>
+                    <span>which is </span><span class="outdoor-guideline"></span><span>the limit set by WHO</span>
+                </h3>
+
+            </div>
+            <div class="container">
+                <small>
+                    Monitoring station: <span class="station"></span>, <span class="current-time"></span>
+                </small>
+                <br>
+                <small>
+                    Source: OpenAQ platform<sup>[1]</sup>
+                </small>
+            </div>
+        </section>
+
+        <div id="main-canvas">
+
+        </div>
+
+        <section id="explanation">
+            <div class="container">
+                <h2>
+                    What is PM2.5?
+                </h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p>
+                            PM, short for particulate matter, consists of microscopic particles small enough to be suspended in the air for a long period of time. PM2.5 refers to very fine particles whose diameters are less than 2.5 micrometer (µm), which is 0.0025 millimeter or
+                            0.00001 inch. They are often the direct result of man-made activities, such as coal and diesel burning, vehicle emission, construction site, and agriculture waste combustion.
+                        </p>
+
+                        <p>
+                            Tiny as they are, PM2.5 particles are invisible to our naked eyes. The background of this page is an image of a single human hair which is magnified 1,000 - 10,000 times depending on your screen size. Scroll down to see how PM2.5 compares.
+                        </p>
+
+                    </div>
+                </div>
+
+                <div class="items">
+                    <div class="item-wrapper">
+                        <h4>
+                            Human hair<br>50 µm (0.05 mm)
+                        </h4>
+
+                    </div>
+                    <div class="item-wrapper">
+                        <img src="assets/coarse-particle.png" class="img-fluid">
+                        <h4>
+                            Coarse particle PM10<br>10 µm
+                        </h4>
+
+                    </div>
+                    <div class="item-wrapper">
+                        <img src="assets/red-blood-cell.png" class="img-fluid">
+                        <h4>
+                            Red blood cell<br>7 µm
+                        </h4>
+
+                    </div>
+                    <div class="item-wrapper">
+                        <img src="assets/fine-particle.png" class="img-fluid">
+                        <h4>
+                            Fine particle PM2.5<br>&lt;2.5 µm
+                        </h4>
+
+                    </div>
+                    <div class="item-wrapper">
+                        <img src="assets/coronavirus.png" class="img-fluid">
+                        <h4>
+                            Coronavirus<br>0.1 µm
+                        </h4>
+
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p style="padding-bottom: 0;">
+                            As we can see, PM2.5 particles are on the same size magnitude of our cells. Because of this, they are capable of penetrating deep into our alveoli (tiny air sacks that line the lungs), from which they find their ways into our blood vessels and into other
+                            organs, such as the brain, liver, and kidney. As they are made up of chemicals and heavy metals, they are capable of causing inflammation, oxidative stress, blockage, and ultimately cancer.<sup>[5]</sup>
+                        </p>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section id="compare">
+            <div class="container">
+                <h2>
+                    How does <span id="city"></span>'s air compare to other cities?
+                </h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p>
+                            91% of the world population, developing and developed countries alike, live in areas where air quality exceeds WHO's guideline. Because of this, it is estimated that 4.2 millions people die each year due to the effect of air pollution.<sup>[6]</sup>
+                        </p>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:10vh">
+                    <div class="mx-auto col-lg-9" id="compare-wrapper">
+                        <div id="compare-graph">
+                            <h3 class="mx-auto">
+                                Current PM2.5 air pollution in selected cities around the world
+                            </h3>
+                            <small>
+                                Source: OpenAQ platform<sup>[1]</sup>. Real-time data updated on <span class="current-time"></span>
+                            </small>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
+
+        </section>
+
+        <section id="a-day">
+            <div class="container">
+                <h2>
+                    How much PM2.5 are you exposed to daily?
+                </h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p>
+                            Given their microscopic scale, the number of fine particles you potentially inhale in is incomprehensibly large...
+                        </p>
+                    </div>
+                </div>
+                <div class="row" style="padding-top:10vh">
+                    <div class="col-lg-6">
+                        <h2 class="big" id="particle-yesterday"></h2>
+                        <h3><span>particles inhaled yesterday, </span><span id="yesterday"></span></h3>
+                        <h3>
+                            <span>(</span><span id="yesterday-guideline"></span><span>WHO's guideline)</span>
+                        </h3>
+                        <small>
+                            Monitoring station: <span class="station"></span>
+                        </small>
+                    </div>
+                    <div id="lung-wrapper" class="col-lg-6">
+                        <div class="row" id="inner-wrapper">
+                            <svg id="outline" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><defs><style>.cls-1{stroke:#000;fill:#000;stroke-miterlimit:10;stroke-width:5px;}</style></defs><path class="cls-1" d="M497.5,366.72c0-126.13-60.33-327-131.82-327-50,0-62.39,63.16-65,122.51-26.14-.77-27.48-10.83-27.48-29.43V27.05C273.21,13.51,262.79,2.5,250,2.5s-23.21,11-23.21,24.55V132.84c0,18.6-1.34,28.65-27.46,29.43-2.61-59.35-15-122.51-65-122.51C62.83,39.76,2.5,240.58,2.5,366.69c0,4-.46,97.8,23.82,123.7,4.43,4.71,9.48,7.11,15,7.11,14.61,0,21.88-5.91,31.94-14.07,12.63-10.25,29.91-24.3,73.77-37.67,74.35-22.68,66.62-96.27,58.43-174.2-2.08-19.8-4.21-40.13-5.1-60.2,20.9-.68,37.59-6.22,49.62-16.51,12,10.29,28.75,15.83,49.65,16.51-.89,20.07-3,40.39-5.1,60.2-8.19,77.93-15.92,151.52,58.44,174.2,43.85,13.37,61.13,27.42,73.75,37.66,10.07,8.17,17.33,14.08,31.95,14.08,5.53,0,10.57-2.4,15-7.11C498,464.49,497.53,370.67,497.5,366.72Z" transform="translate(0)"/></svg>
+                            <svg id="white" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 500 500"><defs><style>.cls-3{fill:#fff;stroke:#000;stroke-miterlimit:10;stroke-width:5px;}</style></defs><path class="cls-3" d="M497.5,366.72c0-126.13-60.33-327-131.82-327-50,0-62.39,63.16-65,122.51-26.14-.77-27.48-10.83-27.48-29.43V27.05C273.21,13.51,262.79,2.5,250,2.5s-23.21,11-23.21,24.55V132.84c0,18.6-1.34,28.65-27.46,29.43-2.61-59.35-15-122.51-65-122.51C62.83,39.76,2.5,240.58,2.5,366.69c0,4-.46,97.8,23.82,123.7,4.43,4.71,9.48,7.11,15,7.11,14.61,0,21.88-5.91,31.94-14.07,12.63-10.25,29.91-24.3,73.77-37.67,74.35-22.68,66.62-96.27,58.43-174.2-2.08-19.8-4.21-40.13-5.1-60.2,20.9-.68,37.59-6.22,49.62-16.51,12,10.29,28.75,15.83,49.65,16.51-.89,20.07-3,40.39-5.1,60.2-8.19,77.93-15.92,151.52,58.44,174.2,43.85,13.37,61.13,27.42,73.75,37.66,10.07,8.17,17.33,14.08,31.95,14.08,5.53,0,10.57-2.4,15-7.11C498,464.49,497.53,370.67,497.5,366.72Z" transform="translate(0)"/></svg>
+                        </div>
+                        <p class="text-center"><span>To put that number in perspective, it is equivalent to filling </span><span id="alveoli"></span><sup>[7]</sup></p>
+
+                    </div>
+                </div>
+
+
+            </div>
+        </section>
+
+
+
+        <section id="how-to-protect">
+            <div class="container">
+                <h2>
+                    How to project yourself?
+                </h2>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <p>
+                            The numbers you have seen so far assume no degree of personal protection. Even if the pollution level is within the WHO's guideline, research has shown <i>"Any level of air pollution, no matter how low, is harmful to human health" </i><sup>[8][9]</sup>.
+                            Thus, it is in your best bet to explore different ways you can protect yourself and lower your exposure.
+                        </p>
+                    </div>
+                </div>
+                <div class="row" style="margin: 20vh auto;">
+                    <div class="sticky-top d-flex flex-row mx-auto justify-content-center">
+                        <div id="outdoor-wrapper" class="text-center">
+                            <h5>
+                                No protection
+                            </h5>
+                            <div id="outdoor">
+                            </div>
+                            <p class="text-center">
+                                Current air quality:
+                                <br>
+                                <span><span class="outdoor-guideline"></span><span>WHO's guideline</span>
+                            </p>
+                        </div>
+                        <div id="protection-wrapper" class="text-center">
+                            <h5 id="protection-title">
+                            </h5>
+                            <div id="protection">
+                            </div>
+                            <p class="text-center">
+                                PM2.5 reduced by: <b><span id="protection-reduction"></span></b>
+                                <br>
+                                <span><span id="protection-guideline"></span><span>WHO's guideline</span>
+                            </p>
+                        </div>
+                    </div>
+                    <div id="protection-list" class="mx-auto">
+                        <div class="protection-item-wrapper">
+                            <h4 class="protection-item" data-step="0">
+                                Being indoor
+                            </h4>
+                            <p>
+                                Indoor dust concentration can vary considerably from household to household. indoor air quality depends on the air tightness of the building and whether it is equipped with air filters. At the same time, air quality can be significantly worsened by indoor
+                                emission activities within a confined space, such as smoking, cooking, and dusting.<sup>[10]</sup>
+                            </p>
+                        </div>
+
+                        <div class="protection-item-wrapper">
+                            <h4 class="protection-item" data-step="1">
+                                Cloth mask
+                            </h4>
+                            <p>
+                                Cloth masks, bandanas, and cloth handkerchiefs are often used in developing countries thanks to their inexpensive price and reusability. They provide a certain degree of protection especially against larger particles; however, they only offer marginal
+                                shield against PM2.5 particles. The tighter the fabric is, the better the protection.<sup>[11][12][13]</sup>
+                            </p>
+                        </div>
+
+                        <div class="protection-item-wrapper">
+                            <h4 class="protection-item" data-step="2">
+                                Surgical mask
+                            </h4>
+                            <p>
+                                Disposable surgical masks are affordable, convenient, and moderately effective against fine dust particles. If tightly worn, surgical masks can filter up to 80% particles while also protecting against water droplets that can carry bacteria and viruses.<sup>[11][12][13]</sup>
+                            </p>
+                        </div>
+
+                        <div class="protection-item-wrapper">
+                            <h4 class="protection-item" data-step="3">
+                                N95 mask
+                            </h4>
+                            <p>
+                                N95 masks, if worn properly, can filter at least 95% airborne particles. They are commonly utilized by construction workers and healthcare workers for their great efficiency. During the past few years, N95 masks have gained considerable popularity among
+                                people in China and India as they face some of the worst air pollutions on the planet.<sup>[11][12][13]</sup>
+                            </p>
+                        </div>
+
+                        <div class="protection-item-wrapper">
+
+                            <h4 class="protection-item" data-step="4">
+                                HEPA filter
+                            </h4>
+                            <p>
+                                HEPA, which stands for high-efficiency particulate air, can successfully filter out 99.95% of airborne particles smaller than 2.5um. Made from tightly-packed non-woven fibers, HEPA filters are used in air purifiers and modern HVAC system. It has been
+                                estimated that such systems can reduce premature mortality caused by air pollution by up to 2.5%.<sup>[14]</sup>
+                            </p>
+                        </div>
+
+
+
+
+
+
+                    </div>
+                </div>
+            </div>
+
+        </section>
+
+        <section id="method">
+            <div class="container">
+                <h2>
+                    Methodology and reference
+                </h2>
+
+                <div class="row">
+
+                    <div class="col-lg-6">
+                        <h3>Calculating the particles numbers</h3>
+                        <p>Real-time and historical data are obtained from OpenAQ<sup>[1]</sup>, an open-source platform that gathers air pollution data from monitoring stations all over the world</p>
+                        <p>The data are compared to the annual limit of 10 µm/m<sup>3</sup> set by WHO<sup>[2]</sup></p>
+                        <p>The obtained PM2.5 data are then converted from mass concentration (µm/m<sup>3</sup>) to particle number concentration (particle/m<sup>3</sup>) using different empirical models from Franken et al.<sup>[3]</sup></p>
+                        <p>The particle number concentration data are then multiplied by the inhalation rate for an average adult<sup>[4]</sup> (16 m<sup>3</sup> or 565 ft<sup>3</sup> per day) to obtain the estimated number of inhaled particles</p>
+                    </div>
+                    <div class="col-lg-6">
+                        <h3><br>
+                        </h3>
+                        <ol>
+                            <li><cite>OpenAQ platform, 2020. <a href="https://openaq.org" target="_blank" rel="noopener noreferrer">https://openaq.org</a></cite></li>
+                            <li><cite>WHO Air quality guidelines for particulate matter, ozone, nitrogen dioxide and sulfur dioxide, 2015. <a href="https://apps.who.int/iris/bitstream/handle/10665/69477/WHO_SDE_PHE_OEH_06.02_eng.pdf" target="_blank" rel="noopener noreferrer">https://apps.who.int/iris/bitstream/handle/10665/69477/WHO_SDE_PHE_OEH_06.02_eng.pdf</a></cite></li>
+                            <li><cite>Franken, R, Maggos, T, Stamatelopoulou, A, et al. Comparison of methods for converting Dylos particle number concentrations to PM2.5 mass concentrations. Indoor Air. 2019; 29: 450– 459. <a href="https://doi.org/10.1111/ina.12546" target="_blank" rel="noopener noreferrer">https://doi.org/10.1111/ina.12546</a></cite></li>
+                            <li><cite>U.S. EPA. Exposure Factors Handbook 2011 Edition (Final Report). U.S. Environmental Protection Agency, Washington, DC, EPA/600/R-09/052F, 2011. <a href="https://cfpub.epa.gov/ncea/risk/recordisplay.cfm?deid=236252" target="_blank" rel="noopener noreferrer">https://cfpub.epa.gov/ncea/risk/recordisplay.cfm?deid=236252</a></cite></li>
+                        </ol>
+                    </div>
+
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h3>
+                            Health effect of PM2.5
+                        </h3>
+                        <p>
+
+                        </p>
+                    </div>
+                    <div class="col-lg-6">
+                        <h3><br>
+                        </h3>
+                        <ol start="5">
+                            <li><cite>
+                                Donghai Li, Yongjian Li, Guiling Li, Yu Zhang, Jiang Li, Haosheng Chen, Fluorescent reconstitution on deposition of PM2.5 in lung and extrapulmonary organs, Proceedings of the National Academy of Sciences Feb 2019, 116 (7) 2488-2493. <a href="https://doi.org/10.1073/pnas.1818134116" target="_blank" rel="noopener noreferrer">https://doi.org/10.1073/pnas.1818134116</a></cite></li>
+
+                            <li><cite>Air Pollution, World Health Organization, 2020. <a href="https://www.who.int/health-topics/air-pollution" target="_blank" rel="noopener noreferrer">https://www.who.int/health-topics/air-pollution</a></cite></li>
+                            <li><cite>Ochs M, Nyengaard JR, Jung A, Knudsen L, Voigt M, Wahlers T, Richter J, Gundersen HJ (2004) The number of alveoli in the human lung. Am J Respir Crit Care Med 169(1):120–124. <a href="https://doi.org/10.1164/rccm.200308-1107OC" target="_blank" rel="noopener noreferrer">https://doi.org/10.1164/rccm.200308-1107OC</a></cite></li>
+                            <li><cite>Wei Y, Wang Y, Di Q, Choirat C, Wang Y, Koutrakis P, Zanobetti A, Dominici F, Schwartz JD. Short term exposure to fine particulate matter and hospital admission risks and costs in the Medicare population: time stratified, case crossover study. BMJ. 2019 Nov 27;367:l6258. PMID: 31776122; PMCID: PMC6880251.<a href="https://doi.org/10.1136/bmj.l6258" target="_blank" rel="noopener noreferrer">https://doi.org/10.1136/bmj.l6258</a></cite></li>
+                            <li><cite>Schlanger, Zoë “Legal Levels of Air Pollution Are Killing the Elderly.” Quartz, Quartz, 27 Dec. 2017. <a href="https://qz.com/1166010/air-pollution-even-at-levels-that-meet-national-standards-causes-premature-death/" target="_blank" rel="noopener noreferrer">https://qz.com/1166010/air-pollution-even-at-levels-that-meet-national-standards-causes-premature-death/</a></cite></li>
+                        </ol>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-lg-6">
+                        <h3>
+                            Efficiency of protection methods
+                        </h3>
+                        <p>
+                            Data are drawn from research papers on the effiency of various types of masks and indoor infiltration rates of fine dust particle
+                        </p>
+                    </div>
+                    <div class="col-lg-6">
+                        <h3><br>
+                        </h3>
+                        <ol start="10">
+                            <li><cite>Chun Chen, Bin Zhao,
+                                Review of relationship between indoor and outdoor particles: I/O ratio, infiltration factor and penetration factor,
+                                Atmospheric Environment,
+                                Volume 45, Issue 2,
+                                2011,
+                                Pages 275-288,
+                                ISSN 1352-2310. <a href="https://doi.org/10.1016/j.atmosenv.2010.09.048" target="_blank" rel="noopener noreferrer">https://doi.org/10.1016/j.atmosenv.2010.09.048</a></cite></li>
+                            <li><cite>Shakya, K., Noyes, A., Kallin, R. et al. Evaluating the efficacy of cloth facemasks in reducing particulate matter exposure. J Expo Sci Environ Epidemiol 27, 352–357 (2017). <a href="https://doi.org/10.1038/jes.2016.42" target="_blank" rel="noopener noreferrer">https://doi.org/10.1038/jes.2016.42</a></cite></li>
+                            <li><cite>Bowen, Larry E. “Does That Face Mask Really Protect You?” Applied Biosafety, vol. 15, no. 2, June 2010, pp. 67–71. <a href="doi:10.1177/153567601001500204" target="_blank" rel="noopener noreferrer">doi:10.1177/153567601001500204</a></cite></li>
+                            <li><cite>Langrish, Jeremy P et al. “Beneficial cardiovascular effects of reducing exposure to particulate air pollution with a simple facemask.” Particle and fibre toxicology vol. 6 8. 13 Mar. 2009. <a href="https://dx.doi.org/10.1186%2F1743-8977-6-8" target="_blank" rel="noopener noreferrer">https://dx.doi.org/10.1186%2F1743-8977-6-8</a></cite></li>
+                            <li><cite>Zhao, D.; Azimi, P.; Stephens, B. Evaluating the Long-Term Health and Economic Impacts of Central Residential Air Filtration for Reducing Premature Mortality Associated with Indoor Fine Particulate Matter (PM2.5) of Outdoor Origin. Int. J. Environ. Res. Public Health 2015, 12, 8448-8479.<a href="https://doi.org/10.3390/ijerph120708448" target="_blank" rel="noopener noreferrer">https://doi.org/10.3390/ijerph120708448</a></cite></li>
+
+                        </ol>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <footer>
+            <div class="container">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <p class="text-center">
+                            <a href="../../" target="_blank" rel="noopener noreferrer">Vince Nguyen</a> - 2020</p>
+                    </div>
+
+                </div>
+            </div>
+
+        </footer>
+    </div>
+
+
+</body>
+
+</html>
