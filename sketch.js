@@ -26,9 +26,9 @@ var main_canvas = function(p) {
         $("#particle-count").html(formatNumber(particle_count));
     };
 
-    p.windowResized = function() {
-        p.resizeCanvas(p.windowWidth, p.windowHeight);
-    };
+    // p.windowResized = function() {
+    //     p.resizeCanvas(p.windowWidth, p.windowHeight);
+    // };
 
 };
 

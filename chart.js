@@ -2,19 +2,11 @@ var compare_graph_array = [];
 
 function addCityToGraph(val) {
     compare_graph_array.push(val);
-    console.log(compare_graph_array);
-    //check when API calls returns all the data points, then call function to draw grpah
-    if (compare_graph_array.length == locations.length + 1) {
-        drawGraph();
-    }
 }
 
 function drawGraph() {
-    // format the data
-    compare_graph_array.forEach(function(d) {
-        d.value = +d.value;
-    });
-
+    //check if API calls returns all the data points to draw graph, if not, return
+    if (compare_graph_array.length < locations.length) return;
     //sort bars based on value
     compare_graph_array = compare_graph_array.sort(function(a, b) {
         return d3.ascending(a.value, b.value);

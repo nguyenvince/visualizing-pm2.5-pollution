@@ -13,6 +13,7 @@ body {
 }
 
 #page-wrapper {
+    position: relative;
     display: none;
 }
 
@@ -27,11 +28,25 @@ section .container {
 }
 
 .big {
-    font-size: 10em;
+    font-size: 10rem;
 }
+
+
+/* -------- Splash page ---------- */
 
 #splash>.container {
     height: 100vh;
+}
+
+.cities {
+    background: none;
+    border: none;
+    color: #888;
+}
+
+.cities:hover {
+    color: inherit;
+    text-decoration: underline;
 }
 
 #main-canvas {
@@ -79,16 +94,16 @@ footer {
 }
 
 .items .item-wrapper h4 {
-    padding-top: 0.25em;
+    padding-top: 0.25rem;
 }
 
 .items .item-wrapper:nth-child(1) h4 {
-    padding-top: 1em;
+    padding-top: 1rem;
     border-top: solid 1px;
 }
 
 .items .item-wrapper img {
-    padding-bottom: 1em;
+    padding-bottom: 1rem;
     border-bottom: solid 1px;
 }
 
@@ -110,7 +125,7 @@ footer {
 
 #lung-wrapper #inner-wrapper {
     min-height: 250px;
-    margin-bottom: 2em;
+    margin-bottom: 2rem;
 }
 
 #lung-wrapper svg {
@@ -134,12 +149,12 @@ footer {
     flex-basis: 0;
     flex-grow: 1;
     max-width: 250px;
-    margin: auto 1em;
+    margin: auto 1rem;
 }
 
 .sticky-top {
     padding-top: 5vh;
-    padding-bottom: 1em;
+    padding-bottom: 1rem;
     margin-bottom: 10vh;
     width: 100%;
     background: white;
@@ -156,7 +171,7 @@ footer {
 
 .protection-item-wrapper {
     background: rgb(230, 230, 230);
-    padding: 1em;
+    padding: 1rem;
     margin-bottom: 50vh;
 }
 
@@ -173,11 +188,11 @@ cite a {
 
 @media(max-width: 575.98px) {
     .big {
-        font-size: 6em;
+        font-size: 6rem;
     }
     .container {
-        padding-left: 2em;
-        padding-right: 2em;
+        padding-left: 2rem;
+        padding-right: 2rem;
     }
     #lung-wrapper {
         padding-top: 10vh;
@@ -241,7 +256,7 @@ cite a {
 }
 
 .axis {
-    font-size: 1em;
+    font-size: 1rem;
 }
 
 .axis path,
@@ -251,7 +266,7 @@ cite a {
 }
 
 .label {
-    font-size: 1em;
+    font-size: 1rem;
 }
 
 .limit-line {

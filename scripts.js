@@ -1,7 +1,5 @@
-// https://api.openaq.org/v1/locations?coordinates=40.7279,-73.9966&radius=10000&order_by=distance
-var coordinates;
-var location_url = 'https://api.openaq.org/v1/locations?&radius=100000&order_by=distance&coordinates=';
-var measurement_url = 'https://api.openaq.org/v1/measurements?parameter=pm25';
+var url = 'https://api.waqi.info/feed/';
+var token = '/?token=89f64a7d2fdf5c4f6e13c0645fa1d5a382e40fe5'; //uhmmmm so github page doesn't support backend stuffs, so please dont overuse this api key, you can register for one at aqicn.org/api
 var dur = 250;
 
 var total_air = 16; //volume of air per day (m^3)
@@ -16,132 +14,74 @@ var who_guideline = 10; //who guideline on pm2.5 limit
 
 var num_alveoli = 480000000; //avg number of aveoli
 
-//Get location function
-function geolocate() {
-    $("#auto-locate").html("Getting location...");
-    $("#auto-locate").addClass("loading");
-    if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(getGeoLocation, showError);
-    } else {
-        alert("geolocation is not supported on your browser, try searching for your location instead");
+//station: for API request
+var locations = [
+    { 'city': 'Abu Dhabi', 'country': 'AE', 'station': 'US Embassy, Abu Dhabi City, UAE' },
+    { 'city': 'Addis Ababa', 'country': 'ET', 'station': 'Addis Ababa US Embassy, Ethiopia' },
+    { 'city': 'Beijing', 'country': 'CN', 'station': 'Beijing US Embassy, Beijing' },
+    { 'city': 'Shanghai', 'country': 'CN', 'station': 'Shanghai US Consulate, Shanghai' },
+    { 'city': 'Delhi', 'country': 'IN', 'station': 'New Delhi US Embassy, India' },
+    { 'city': 'London', 'country': 'UK', 'station': 'London' },
+    { 'city': 'Paris', 'country': 'FR', 'station': 'Paris' },
+    { 'city': 'Los Angeles', 'country': 'US', 'station': 'Los Angeles-North Main Street' },
+    { 'city': 'New York', 'country': 'US', 'station': 'New York' },
+    { 'city': 'Hanoi', 'country': 'VN', 'station': 'Hanoi US Embassy, Vietnam' },
+    { 'city': 'Bangkok', 'country': 'TH', 'station': 'Bangkok' }
+];
+// sort alphabetically
+locations.sort((a, b) => {
+    let fa = a.city.toLowerCase(),
+        fb = b.city.toLowerCase();
+
+    if (fa < fb) {
+        return -1;
     }
-}
+    if (fa > fb) {
+        return 1;
+    }
+    return 0;
+});
 
 function showError(err) {
     alert(`ERROR(${err.code}): ${err.message}`);
 }
 
-function getGeoLocation(pos) {
-    coordinates = pos.coords;
-    getLocations().catch(error => {
-        console.log(error.message);
-        alert("there is no monitoring station near you " + coordinates.latitude + ',' + coordinates.longitude);
-    })
-}
-
-async function getLocations() {
-    var response = await fetch(location_url + coordinates.latitude + ',' + coordinates.longitude);
-    var loc_data = await response.json();
-
-    //loop through the list to find the nearest station with the latest data
-    var d = new Date;
-    var dateString = d.toISOString().substr(0, d.toISOString().search("T"));
-    for (let i = 0; i < loc_data.results.length; i++) {
-        if (loc_data.results[i].lastUpdated.includes(dateString)) {
-            var city = loc_data.results[i].city;
-            var location = loc_data.results[i].location;
-            var country = loc_data.results[i].country;
-            break;
-        }
-    }
-
-    //console.log(city);
-    //console.log(location);
-    currentCityName = city + ' ' + country;
-
-    getPM25({ 'city': city, 'cityName': currentCityName, 'location': location }, true);
-    for (let i = 0; i < locations.length; i++) {
-        getPM25({ 'city': locations[i].city, 'cityName': locations[i].cityName, 'location': locations[i].location }, false);
-    }
-
-
-    return loc_data;
-}
-
-//city: for API, cityName: for graph display
-var locations = [
-    { 'city': 'Beijing', 'cityName': 'Beijing, CN', 'location': 'Beijing US Embassy' },
-    { 'city': 'Shanghai', 'cityName': 'Shanghai, CN', 'location': 'Shanghai' },
-    { 'city': 'Delhi', 'cityName': 'New Delhi, IN', 'location': 'Dwarka-Sector 8, Delhi - DPCC ' },
-    { 'city': 'London', 'cityName': 'London, UK', 'location': 'Camden Kerbside' },
-    { 'city': 'Paris', 'cityName': 'Paris, FR', 'location': 'FR04329' },
-    { 'city': 'Los Angeles-Long Beach-Santa Ana', 'cityName': 'Los Angeles, US', 'location': 'Los Angeles - N. Mai' },
-    { 'city': 'DISTRITO FEDERAL', 'cityName': 'Mexico City, MX', 'location': 'Merced' },
-];
-
-//homeLocation: true -> get data for geolocation, false -> get data for other cities
-async function getPM25(data, homeLocation) {
-    //get yesterday
-    var d1 = new Date;
-    d1.setDate(d1.getDate() - 1);
-    var dateString_1 = d1.toISOString().substr(0, d1.toISOString().search("T"));
-    //get the day before yesterday date to get yesterday's mean value
-    var d2 = new Date;
-    d2.setDate(d2.getDate() - 1);
-    var dateString_2 = d2.toISOString().substr(0, d2.toISOString().search("T"));
+//homeLocation: true -> get data for selected location, false -> get data for other cities
+async function getPM25(data, selectedLocation) {
 
     //fetch data from the station
-    var response = await fetch(measurement_url + '&city=' + data.city + '&location=' + data.location + '&date_from=' + dateString_2);
-    //console.log(measurement_url + '&city=' + data.city + '&location=' + data.location + '&date_from=' + dateString_2);
+    var full_url = url + data.station + token;
+    var response = await fetch(full_url);
     var pm_data = await response.json();
 
-    //add to location graph data array
-    addCityToGraph({ "city": data.cityName, "value": pm_data.results[0].value / who_guideline });
+    //mass concentration
+    current_mass_concentration = convertToMassConcentration(pm_data.data.iaqi.pm25.v);
 
-    //update the page information if homelocation is true
-    if (homeLocation) {
-        //mass concentration
-        current_mass_concentration = pm_data.results[0].value;
-        //console.log(current_mass_concentration);
-
+    // if selected location, update UI
+    if (selectedLocation) {
         //calculate current number concentration
         current_number_concentration = convertToNumberConcentration(current_mass_concentration);
-        console.log(current_number_concentration);
 
         //update station name
-        $(".station").html(pm_data.results[0].location + ', ' + pm_data.results[0].city);
+        $(".station").html(data.station + ', ' + data.city + ', ' + data.country);
 
-        //update current time
-        var time = new Date(pm_data.results[0].date.local);
-        $(".current-time").html(time);
+        //update data time
+        $(".current-time").html(pm_data.data.time.iso);
 
         //update city name
-        $("#city").html(pm_data.results[0].city);
+        $("#city").html(data.city);
 
         //update WHO guideline value
         $(".outdoor-guideline").html(compareWHO(current_mass_concentration));
 
-        //get yesterday's mean value and update yesterday count
-        let sum = 0;
-        let cnt = 0;
-        for (let i = 0; i < pm_data.results.length; i++) {
-            if (pm_data.results[i].date.local.includes(dateString_1)) {
-                if (typeof(pm_data.results[i].value) == "number") {
-                    sum += pm_data.results[i].value;
-                    cnt++;
-                }
-            }
-        }
-        let mean_yesterday = sum / cnt;
-        let yesterday_count = convertToNumberConcentration(mean_yesterday) * total_air;
-        $("#particle-yesterday").html(formatNumber(yesterday_count));
+        //extrapolate current data for one day worth of pm2.5
+        let daily = current_number_concentration * total_air;
+        $("#particle-daily").html(formatNumber(daily));
         //update WHO guideline value
-        $("#yesterday-guideline").html(compareWHO(mean_yesterday));
-        //update yesterday
-        $("#yesterday").html(d1.toDateString().substr(4, 6));
+        $("#daily-guideline").html(compareWHO(current_mass_concentration));
 
         //update lung diagram
-        let percent_lung = yesterday_count / num_alveoli;
+        let percent_lung = daily / num_alveoli;
         let height_viewBox;
         if (percent_lung < 1) {
             height_viewBox = 500 * (1 - percent_lung);
@@ -149,23 +89,48 @@ async function getPM25(data, homeLocation) {
             $("#alveoli").html('<b>' + formatNumber(percent_lung) + '</b>' + ' of your <b>480 million</b> lung alveoli with one particle each');
         } else {
             $("#white").attr('viewBox', '0 0 500 0');
-            $("#alveoli").html('all your <b>480 million</b> lung alveoli with one particle each, while still having <b>' + formatNumber(yesterday_count - num_alveoli).toString() + '</b> particles to spare');
+            $("#alveoli").html('all your <b>480 million</b> lung alveoli with one particle each, while still having <b>' + formatNumber(daily - num_alveoli).toString() + '</b> particles to spare');
         }
 
         //hide splash screen and show page
-        $("#splash").fadeOut(dur, function() {
-            $("#page-wrapper").fadeIn(dur, function() {
-                //start painting canvas
-                started = true;
-                //send trigger signal to init outdoor and protection sketches
-                initCanvas();
-            });
-        });
+        //start painting canvas
+        started = true;
+        //send trigger signal to init outdoor and protection sketches
+        initCanvas();
     }
-
-
-
+    // else: other cities' comparison graph
+    else {
+        //add to location graph data array
+        addCityToGraph({ "city": data.city, "value": current_mass_concentration / who_guideline });
+    }
     return pm_data;
+}
+
+//function to convert US AQI to mass concentration
+function linearPieceWise(aqiHigh, aqiLow, concenHigh, concenLow, AQIvalue) {
+    c = ((AQIvalue - aqiLow) / (aqiHigh - aqiLow)) * (concenHigh - concenLow) + concenLow;
+    return c;
+}
+
+function convertToMassConcentration(val) {
+    if (val >= 0 && val <= 50) {
+        mass = linearPieceWise(50, 0, 12, 0, val);
+    } else if (val > 50 && val <= 100) {
+        mass = linearPieceWise(100, 51, 35.4, 12.1, val);
+    } else if (val > 100 && val <= 150) {
+        mass = linearPieceWise(150, 101, 55.4, 35.5, val);
+    } else if (val > 150 && val <= 200) {
+        mass = linearPieceWise(200, 151, 150.4, 55.5, val);
+    } else if (val > 200 && val <= 300) {
+        mass = linearPieceWise(300, 201, 250.4, 150.5, val);
+    } else if (val > 300 && val <= 400) {
+        mass = linearPieceWise(400, 301, 350.4, 250.5, val);
+    } else if (val > 400 && val <= 500) {
+        mass = linearPieceWise(500, 401, 500.4, 350.5, val);
+    } else if (val > 400 && val <= 1000) {
+        mass = linearPieceWise(1000, 501, 1250.4, 500.5, val);
+    }
+    return mass;
 }
 
 //function to convert from mass concentration to number concentration
@@ -200,7 +165,7 @@ function compareWHO(val) {
 
 }
 
-//format number
+//format number helper function
 function formatNumber(num) {
     //return percentage value rounded to integer
     if (num < 10) {
@@ -231,4 +196,25 @@ $(document).ready(function() {
         },
         offset: 0.2
     });
+
+    // add the locations
+    for (i = 0; i < locations.length; i++) {
+        let loc = locations[i];
+        let b = document.createElement("button");
+        button = $(b);
+        button.addClass("cities");
+        button.html(loc.city);
+        button.attr("station", loc.station);
+        button.on("click", function() {
+            // get PM2.5 for selected location (true)
+            getPM25(loc, true);
+            $("#page-wrapper").show();
+            document.getElementById("page-wrapper").scrollIntoView();
+            drawGraph();
+
+        });
+        // get PM2.5 for other cities for comparison (false)
+        getPM25(loc, false);
+        $("#cities-wrapper").append(button);
+    }
 });
