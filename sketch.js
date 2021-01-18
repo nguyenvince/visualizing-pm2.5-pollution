@@ -4,7 +4,7 @@ let minSize = 1;
 let maxSize = 5;
 let fr = 10; //frameRate
 let particle_count = 0; //num particle for main canvas
-let factor = 10; //reduce number of displayed particle by a factor of
+let factor = 30; //reduce number of displayed particle by a factor of
 
 //main canvas
 var main_canvas_p5;
@@ -70,7 +70,6 @@ let protection_rate = [0.5, 0.3, 0.5, 0.95, 0.9995]; //indoor,cloth,surgical,n95
 let protection_range = ['20%-70%', '10%-60%', '30%-80%', '95%', '99.95%']; //indoor,cloth,surgical,n95,hepa
 var protection = function(p) {
     p.setup = function() {
-        console.log($("#protection-wrapper").width());
         let w = $("#protection-wrapper").width();
         let h = 0.75 * w;
         p.canvas = p.createCanvas(w, h);

@@ -50,7 +50,9 @@ section .container {
 }
 
 #main-canvas {
-    position: absolute;
+    position: sticky;
+    filter: blur(1px);
+    opacity: 0.5;
     top: 0;
     left: 0;
     z-index: -1;
@@ -165,12 +167,12 @@ footer {
 }
 
 #protection-title {
-    background: rgb(230, 230, 230);
+    background: rgb(240, 240, 240);
     border-radius: 10px;
 }
 
 .protection-item-wrapper {
-    background: rgb(230, 230, 230);
+    background: rgb(240, 240, 240);
     padding: 1rem;
     margin-bottom: 50vh;
 }

@@ -1,9 +1,5 @@
 var compare_graph_array = [];
 
-function addCityToGraph(val) {
-    compare_graph_array.push(val);
-}
-
 function drawGraph() {
     //check if API calls returns all the data points to draw graph, if not, return
     if (compare_graph_array.length < locations.length) return;
@@ -38,7 +34,8 @@ function drawGraph() {
         .attr("height", height + margin.top + margin.bottom)
         .append("g")
         .attr("transform",
-            "translate(" + margin.left + "," + margin.top + ")");
+            "translate(" + margin.left + "," + margin.top + ")")
+        .attr("id", "comparison-graph");
 
     // Scale the range of the compare_graph_array in the domains
     x.domain([0, d3.max(compare_graph_array, function(d) {
@@ -53,8 +50,7 @@ function drawGraph() {
         .data(compare_graph_array)
         .enter().append("rect")
         .attr("class", function(d) {
-            if (d.city == currentCityName) return "current-city-bar";
-            else return d.city + " bar";
+            return d.city + " bar";
         })
         .attr("width", function(d) {
             return x(d.value);

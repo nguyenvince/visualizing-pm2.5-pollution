@@ -20,13 +20,20 @@ var locations = [
     { 'city': 'Addis Ababa', 'country': 'ET', 'station': 'Addis Ababa US Embassy, Ethiopia' },
     { 'city': 'Beijing', 'country': 'CN', 'station': 'Beijing US Embassy, Beijing' },
     { 'city': 'Shanghai', 'country': 'CN', 'station': 'Shanghai US Consulate, Shanghai' },
-    { 'city': 'Delhi', 'country': 'IN', 'station': 'New Delhi US Embassy, India' },
+    { 'city': 'New Delhi', 'country': 'IN', 'station': 'New Delhi US Embassy, India' },
     { 'city': 'London', 'country': 'UK', 'station': 'London' },
     { 'city': 'Paris', 'country': 'FR', 'station': 'Paris' },
     { 'city': 'Los Angeles', 'country': 'US', 'station': 'Los Angeles-North Main Street' },
     { 'city': 'New York', 'country': 'US', 'station': 'New York' },
     { 'city': 'Hanoi', 'country': 'VN', 'station': 'Hanoi US Embassy, Vietnam' },
-    { 'city': 'Bangkok', 'country': 'TH', 'station': 'Bangkok' }
+    { 'city': 'Bangkok', 'country': 'TH', 'station': 'Bangkok' },
+    { 'city': 'Lima', 'country': 'PE', 'station': 'US Embassy, Lima, Peru' },
+    { 'city': 'Jakarta', 'country': 'ID', 'station': 'Jakarta Central (US Consulate), Indonesia' },
+    { 'city': 'Ulaanbaatar', 'country': 'MM', 'station': 'Ulaanbaatar US Embassy' },
+    { 'city': 'Madrid', 'country': 'ES', 'station': 'Madrid' },
+    { 'city': 'Skopje', 'country': 'MK', 'station': 'Centar, Skopje, Macedonia' },
+    { 'city': 'Seoul', 'country': 'IN', 'station': 'Seoul' },
+    { 'city': 'Milan', 'country': 'IN', 'station': 'Milan' }
 ];
 // sort alphabetically
 locations.sort((a, b) => {
@@ -53,8 +60,8 @@ async function getPM25(data, selectedLocation) {
     var full_url = url + data.station + token;
     var response = await fetch(full_url);
     var pm_data = await response.json();
-
-    //mass concentration
+    console.log(data.station)
+        //mass concentration
     current_mass_concentration = convertToMassConcentration(pm_data.data.iaqi.pm25.v);
 
     // if selected location, update UI
@@ -101,7 +108,8 @@ async function getPM25(data, selectedLocation) {
     // else: other cities' comparison graph
     else {
         //add to location graph data array
-        addCityToGraph({ "city": data.city, "value": current_mass_concentration / who_guideline });
+        compare_graph_array.push({ "city": data.city, "value": current_mass_concentration / who_guideline });
+
     }
     return pm_data;
 }
@@ -179,13 +187,14 @@ function formatNumber(num) {
     else if (num < 1000000000 && num >= 1000000) {
         return Math.floor(num / 1000000).toString() + ' M'; //million
     } else if (num >= 1000000000) {
-        return Math.floor(num / 1000000).toString() + ' B'; //billion
+        return (Math.floor(num / 1000000) / 1000).toString() + ' B'; //billion
     }
 
 }
 
-//init enterview.js on ready
+
 $(document).ready(function() {
+    //init enterview.js on ready
     enterView({
         selector: '.protection-item',
         enter: function(el) {
@@ -205,13 +214,25 @@ $(document).ready(function() {
         button.addClass("cities");
         button.html(loc.city);
         button.attr("station", loc.station);
+
+        // on choosing a new location
         button.on("click", function() {
+            // reset particle count
+            particle_count = 0;
+            // delete canvas if existed
+            if ($("canvas")) $("canvas").remove();
             // get PM2.5 for selected location (true)
             getPM25(loc, true);
+            // show main page
             $("#page-wrapper").show();
             document.getElementById("page-wrapper").scrollIntoView();
-            drawGraph();
-
+            // draw comparison graph if not existed
+            if ($("#comparison-graph").length == 0) drawGraph();
+            // highlight current selected city
+            $(".bar").each(function() {
+                if ($(this).hasClass("current-city-bar")) $(this).removeClass("current-city-bar");
+                if ($(this).hasClass(loc.city)) $(this).addClass("current-city-bar");
+            });
         });
         // get PM2.5 for other cities for comparison (false)
         getPM25(loc, false);
