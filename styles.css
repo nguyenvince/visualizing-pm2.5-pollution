@@ -1,0 +1,260 @@
+html * {
+    font-family: 'Roboto Slab', serif;
+}
+
+html {
+    overflow-x: hidden;
+}
+
+html,
+body {
+    margin: 0;
+    padding: 0;
+}
+
+#page-wrapper {
+    display: none;
+}
+
+section .container {
+    padding-top: 10vh;
+    padding-bottom: 10vh;
+}
+
+#main .container {
+    padding-top: unset;
+    padding-bottom: unset;
+}
+
+.big {
+    font-size: 10em;
+}
+
+#splash>.container {
+    height: 100vh;
+}
+
+#main-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    z-index: -1;
+}
+
+#main {
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-content: center;
+}
+
+#main .container h1,
+#main .container h3 {
+    text-align: left;
+}
+
+#explanation>.container {
+    background: url('assets/hair.jpg');
+    background-size: 100%;
+}
+
+#explanation,
+#method,
+footer {
+    background: black;
+    color: white;
+}
+
+#explanation .container .row .col-lg-6 p {
+    padding-top: 10vh;
+    padding-bottom: 10vh;
+}
+
+.item-wrapper {
+    text-align: center;
+    margin: auto;
+    padding-top: 10vh;
+    padding-bottom: 10vh;
+}
+
+.items .item-wrapper h4 {
+    padding-top: 0.25em;
+}
+
+.items .item-wrapper:nth-child(1) h4 {
+    padding-top: 1em;
+    border-top: solid 1px;
+}
+
+.items .item-wrapper img {
+    padding-bottom: 1em;
+    border-bottom: solid 1px;
+}
+
+.items .item-wrapper:nth-child(2) img {
+    width: 20%;
+}
+
+.items .item-wrapper:nth-child(3) img {
+    width: 14%;
+}
+
+.items .item-wrapper:nth-child(4) img {
+    width: 5%;
+}
+
+.items .item-wrapper:nth-child(5) img {
+    width: 0.5%;
+}
+
+#lung-wrapper #inner-wrapper {
+    min-height: 250px;
+    margin-bottom: 2em;
+}
+
+#lung-wrapper svg {
+    position: absolute;
+    width: 250px;
+    top: 0;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+#inner-wrapper {
+    position: relative;
+}
+
+#lung-fill {
+    opacity: 0.5;
+}
+
+#outdoor-wrapper,
+#protection-wrapper {
+    flex-basis: 0;
+    flex-grow: 1;
+    max-width: 250px;
+    margin: auto 1em;
+}
+
+.sticky-top {
+    padding-top: 5vh;
+    padding-bottom: 1em;
+    margin-bottom: 10vh;
+    width: 100%;
+    background: white;
+}
+
+#protection-list {
+    max-width: 800px;
+}
+
+#protection-title {
+    background: rgb(230, 230, 230);
+    border-radius: 10px;
+}
+
+.protection-item-wrapper {
+    background: rgb(230, 230, 230);
+    padding: 1em;
+    margin-bottom: 50vh;
+}
+
+#method .row {
+    padding-top: 10vh;
+}
+
+cite a {
+    word-wrap: break-word;
+}
+
+
+/* Extra small devices (portrait phones, less than 576px) */
+
+@media(max-width: 575.98px) {
+    .big {
+        font-size: 6em;
+    }
+    .container {
+        padding-left: 2em;
+        padding-right: 2em;
+    }
+    #lung-wrapper {
+        padding-top: 10vh;
+    }
+}
+
+
+/* width */
+
+::-webkit-scrollbar {
+    width: 5px;
+}
+
+
+/* Track */
+
+ ::-webkit-scrollbar-track {
+    background: #f1f1f1;
+}
+
+
+/* Handle */
+
+ ::-webkit-scrollbar-thumb {
+    background: #888;
+}
+
+
+/* Handle on hover */
+
+ ::-webkit-scrollbar-thumb:hover {
+    background: #555;
+}
+
+
+/* getting location loading button */
+
+.loading {
+    animation: loading 0.5s infinite alternate;
+    cursor: not-allowed;
+}
+
+@keyframes loading {
+    0% {
+        opacity: 1;
+    }
+    100% {
+        opacity: 0.5;
+    }
+}
+
+
+/* -------------- d3 chart ------------------ */
+
+.bar {
+    fill: #dbdbdb;
+}
+
+.current-city-bar {
+    fill: #8d8d8d;
+}
+
+.axis {
+    font-size: 1em;
+}
+
+.axis path,
+.axis line {
+    fill: none;
+    display: none;
+}
+
+.label {
+    font-size: 1em;
+}
+
+.limit-line {
+    stroke: rgb(100, 0, 0);
+    stroke-dasharray: 5;
+}
